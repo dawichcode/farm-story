@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sprout, LayoutDashboard, Users, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, Users, ClipboardList } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
 
 const NAV = [
   { href: '/admin',          label: 'Dashboard',        icon: LayoutDashboard, exact: true },
@@ -23,11 +24,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="w-60 bg-white border-r border-gray-100 flex flex-col flex-shrink-0 hidden lg:flex">
         {/* Brand */}
         <div className="px-5 py-5 border-b border-gray-100">
-          <div className="flex items-center gap-2 mb-0.5">
-            <Sprout className="w-5 h-5 text-agric-green" aria-hidden="true" />
-            <span className="font-display font-bold text-black text-sm tracking-wide">Farm Story</span>
-          </div>
-          <p className="text-xs text-gray-400 pl-7">Administrator</p>
+          <BrandLogo size="md" />
+          <p className="text-xs text-gray-400 mt-1 pl-9">Administrator</p>
         </div>
 
         {/* Nav */}
@@ -58,8 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="lg:hidden fixed top-0 inset-x-0 z-20 bg-white border-b border-gray-100">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <Sprout className="w-4 h-4 text-agric-green" aria-hidden="true" />
-            <span className="font-display font-bold text-black text-sm">Farm Story</span>
+            <BrandLogo size="sm" />
             <span className="text-xs text-gray-400">Admin</span>
           </div>
           <nav className="flex items-center gap-1" aria-label="Admin navigation">

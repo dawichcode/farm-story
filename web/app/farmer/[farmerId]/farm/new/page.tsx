@@ -7,7 +7,7 @@ import { useFarmerStore } from '@/store/useFarmerStore'
 import { useFarmFormStore } from '@/store/useFarmFormStore'
 import FarmRegistrationForm from '@/components/farm/FarmRegistrationForm'
 import Spinner from '@/components/ui/Spinner'
-import { Sprout } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
 
 export default function FarmNewPage() {
   const { farmerId } = useParams<{ farmerId: string }>()
@@ -77,10 +77,7 @@ export default function FarmNewPage() {
       {/* Top bar */}
       <header className="bg-white border-b border-gray-100 px-4 py-4">
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sprout className="w-5 h-5 text-agric-green" aria-hidden="true" />
-            <span className="font-display font-semibold text-black text-sm tracking-wide">Farm Story</span>
-          </div>
+          <BrandLogo size="md" />
           {displayId && (
             <span className="font-mono text-xs text-gold">{displayId}</span>
           )}

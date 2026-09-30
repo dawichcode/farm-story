@@ -11,7 +11,8 @@ import FarmIntelligenceCard from '@/components/farm/FarmIntelligenceCard'
 import RecommendationCard from '@/components/farm/RecommendationCard'
 import ProductionMetrics from '@/components/farm/ProductionMetrics'
 import TakeActionPanel from '@/components/farm/TakeActionPanel'
-import { Sprout, MapPin, Wheat, ChevronLeft } from 'lucide-react'
+import { MapPin, Wheat, ChevronLeft } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
 import { formatAcres, formatCoordinate, challengeLabel } from '@/lib/utils'
 
 export default function FarmDetailPage() {
@@ -92,10 +93,7 @@ export default function FarmDetailPage() {
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <Sprout className="w-4 h-4 text-agric-green" aria-hidden="true" />
-              <span className="font-display font-semibold text-black text-sm tracking-wide">Farm Story</span>
-            </div>
+            <BrandLogo size="sm" />
           </div>
           {farmerPublicId && (
             <span className="font-mono text-xs text-gold">{farmerPublicId}</span>
@@ -104,7 +102,7 @@ export default function FarmDetailPage() {
       </header>
 
       <main className="flex-1 px-4 py-6">
-        <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
+        <div className="max-w-lg mx-auto space-y-6 motion-safe:animate-fade-in">
 
           {/* Farm header */}
           <div className="motion-safe:animate-slide-in-up">
@@ -160,9 +158,9 @@ export default function FarmDetailPage() {
 
           {/* Farm Intelligence */}
           <div>
-            <h2 className="font-display text-base font-semibold text-black mb-4 uppercase tracking-wide text-xs text-gray-400">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
               Farm Intelligence
-            </h2>
+            </p>
 
             {loadingInsight && (
               <div className="flex flex-col items-center gap-3 py-8 text-gray-400">
@@ -185,9 +183,9 @@ export default function FarmDetailPage() {
 
                 {insight.recommendations.length > 0 && (
                   <div className="space-y-3">
-                    <h3 className="font-display text-sm font-semibold text-black uppercase tracking-wide text-xs text-gray-400">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
                       Recommendations
-                    </h3>
+                    </p>
                     {insight.recommendations.map((rec, i) => (
                       <RecommendationCard key={`${rec.category}-${i}`} recommendation={rec} index={i} />
                     ))}

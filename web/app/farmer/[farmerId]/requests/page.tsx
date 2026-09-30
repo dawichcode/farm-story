@@ -9,7 +9,8 @@ import type { PaginationMeta } from '@/lib/types'
 import Spinner from '@/components/ui/Spinner'
 import Button from '@/components/ui/Button'
 import ServiceRequestList from '@/components/farmer/ServiceRequestList'
-import { Sprout, ChevronLeft } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
 
 export default function FarmerRequestsPage() {
   const { farmerId } = useParams<{ farmerId: string }>()
@@ -90,8 +91,7 @@ export default function FarmerRequestsPage() {
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-2">
-              <Sprout className="w-4 h-4 text-agric-green" aria-hidden="true" />
-              <span className="font-display font-semibold text-black text-sm tracking-wide">Farm Story</span>
+              <BrandLogo size="sm" />
             </div>
           </div>
           {displayId && (

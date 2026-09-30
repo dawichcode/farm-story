@@ -8,7 +8,8 @@ import { useFarmerStore } from '@/store/useFarmerStore'
 import type { Farmer, Farm } from '@/lib/types'
 import Spinner from '@/components/ui/Spinner'
 import Button from '@/components/ui/Button'
-import { Sprout, PlusCircle, ClipboardList, Wheat, MapPin } from 'lucide-react'
+import { PlusCircle, ClipboardList, Wheat, MapPin } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
 import { formatAcres } from '@/lib/utils'
 
 export default function FarmerDashboardPage() {
@@ -68,8 +69,7 @@ export default function FarmerDashboardPage() {
       <header className="bg-white border-b border-gray-100 px-4 py-4">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sprout className="w-5 h-5 text-agric-green" aria-hidden="true" />
-            <span className="font-display font-semibold text-black text-sm tracking-wide">Farm Story</span>
+            <BrandLogo size="md" />
           </div>
           <span className="font-mono text-xs text-gold">{farmer.farmer_id}</span>
         </div>

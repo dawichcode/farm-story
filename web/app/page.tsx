@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Sprout, ArrowRight, BarChart3, MapPin, ClipboardList } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
+import { ArrowRight, BarChart3, MapPin, ClipboardList, Sprout } from 'lucide-react'
 
 const FEATURES = [
   {
@@ -30,11 +31,11 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col bg-white">
 
       {/* Nav */}
-      <header className="border-b border-gray-100 px-6 py-4">
+      <header className="border-b border-gray-100  fixed top-0 left-0 z-[900] w-full bg-white">
+        <div className=' mt-5'/>
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sprout className="w-5 h-5 text-agric-green" aria-hidden="true" />
-            <span className="font-display font-bold text-black text-sm tracking-wide">Farm Story</span>
+          <BrandLogo size="md" />
           </div>
           <Link
             href="/admin"
@@ -81,7 +82,7 @@ export default function LandingPage() {
             </Link>
 
             <Link
-              href="/farmer/1"
+              href={`/farmer/${process.env.NEXT_PUBLIC_DEMO_FARMER_ID ?? '1'}`}
               className="inline-flex items-center gap-2 h-12 px-7 rounded-lg border border-white/30 text-white text-sm font-medium hover:bg-white/10 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               View demo farm

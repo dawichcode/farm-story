@@ -34,7 +34,7 @@ function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label:
       <Icon className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
       <div className="min-w-0">
         <p className="text-xs text-gray-400">{label}</p>
-        <p className="text-sm font-medium text-black break-words">{value || <span className="text-gray-300">Not provided</span>}</p>
+        <p className="text-sm font-medium text-black break-words">{value || <span className="text-gray-400">Not provided</span>}</p>
       </div>
     </div>
   )

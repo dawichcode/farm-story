@@ -1,9 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html {
-  font-family: 'Inter', sans-serif;
+/* ---------------------------------------------------------------------------
+   Selection highlight
+   Uses the brand green so selected text feels intentional and on-brand.
+--------------------------------------------------------------------------- */
+::selection {
+  background-color: #2D6A2D;
+  color: #ffffff;
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbar styling (WebKit — Chrome, Safari, Edge)
+   Thin scrollbar with brand-green thumb at low opacity.
+   Firefox uses scrollbar-* properties defined below.
+--------------------------------------------------------------------------- */
+
+/* WebKit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(45, 106, 45, 0.3); /* agric-green at 30% */
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(45, 106, 45, 0.55);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(45, 106, 45, 0.3) transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Focus-visible baseline
+   Ensure keyboard focus rings are consistent across browsers.
+   Individual components override this with focus-visible:ring-* utilities.
+--------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid #2D6A2D;
+  outline-offset: 2px;
 }

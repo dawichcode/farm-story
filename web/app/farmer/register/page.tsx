@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import FarmerRegistrationForm from '@/components/farmer/FarmerRegistrationForm'
-import { Sprout } from 'lucide-react'
+import BrandLogo from '@/components/ui/BrandLogo'
 
 export default function FarmerRegisterPage() {
   const router = useRouter()
@@ -16,8 +16,7 @@ export default function FarmerRegisterPage() {
       {/* Top bar */}
       <header className="bg-white border-b border-gray-100 px-4 py-4">
         <div className="max-w-md mx-auto flex items-center gap-2">
-          <Sprout className="w-5 h-5 text-agric-green" aria-hidden="true" />
-          <span className="font-display font-semibold text-black text-sm tracking-wide">Farm Story</span>
+          <BrandLogo size="md" />
         </div>
       </header>
 

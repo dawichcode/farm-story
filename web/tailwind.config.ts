@@ -15,9 +15,9 @@ const config: Config = {
         'black':       '#0F0F0F',
       },
       fontFamily: {
-        sans:    ['Inter', 'sans-serif'],
-        display: ['Manrope', 'sans-serif'],
-        mono:    ['IBM Plex Mono', 'monospace'],
+        sans:    ['var(--font-inter)',         'system-ui', 'sans-serif'],
+        display: ['var(--font-manrope)',        'system-ui', 'sans-serif'],
+        mono:    ['var(--font-ibm-plex-mono)', 'ui-monospace', 'monospace'],
       },
       keyframes: {
         'slide-in-left': {
