@@ -361,7 +361,8 @@ Validates the product. Suitable for demo and initial pilot.
 - Add a connection pooler (e.g. PgBouncer)
 - Deploy multiple stateless Laravel instances behind a load balancer
 - Introduce background job queues for intelligence generation (Laravel Horizon + Redis)
-- Add object storage (S3-compatible) for any file uploads
+- Add object storage (S3-compatible) for any file uploads for long term
+- Local storage upload for a start
 - Centralised logging and monitoring (Datadog, CloudWatch)
 - Automated daily database backups
 
@@ -392,7 +393,5 @@ The core architectural principle: **start as a modular monolith, extract service
 ## AI Development Tools Used
 
 This prototype was developed with assistance from **Kiro** (an AI-powered development environment by AWS) for architecture planning, scaffolding, implementation, and documentation.
-
-AI assistance was used as a development aid throughout the project. The application architecture, feature decisions, scoring logic, database design, API design, and all integration decisions were reviewed and verified as part of the development process.
 
 No AI-generated code was committed without being read and understood.
