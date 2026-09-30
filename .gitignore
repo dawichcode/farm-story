@@ -1,0 +1,108 @@
+# =============================================================================
+# Farm Story — root .gitignore
+# Covers both api/ (Laravel) and web/ (Next.js) from the monorepo root.
+# Each sub-project also has its own .gitignore for finer-grained rules.
+# =============================================================================
+
+
+# ---- Environment files -------------------------------------------------------
+# Never commit secrets or local config
+.env
+.env.*
+!.env.example          # keep the Laravel example template
+!**/.env.example
+
+
+# ---- PHP / Laravel (api/) ----------------------------------------------------
+api/vendor/
+api/storage/logs/
+api/storage/framework/cache/
+api/storage/framework/sessions/
+api/storage/framework/testing/
+api/storage/framework/views/
+api/storage/*.key
+api/public/build/
+api/public/hot
+api/public/storage
+api/.phpunit.result.cache
+api/.phpunit.cache/
+api/node_modules/
+api/bootstrap/cache/*.php
+
+
+# ---- SQLite database file ----------------------------------------------------
+# The actual data file and WAL artefacts — never commit
+api/database/database.sqlite
+api/database/database.sqlite-shm
+api/database/database.sqlite-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+
+# ---- Node / Next.js (web/) ---------------------------------------------------
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/coverage/
+web/.vercel/
+web/.pnp
+web/.pnp.*
+web/.yarn/*
+!web/.yarn/patches
+!web/.yarn/plugins
+!web/.yarn/releases
+!web/.yarn/versions
+
+
+# ---- TypeScript build artefacts ----------------------------------------------
+*.tsbuildinfo
+web/next-env.d.ts
+
+
+# ---- Logs (any depth) --------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+
+# ---- OS and editor noise -----------------------------------------------------
+.DS_Store
+Thumbs.db
+*.pem
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+
+# VS Code / Cursor / Zed / Nova
+.vscode/
+.cursor/
+.zed/
+.nova/
+
+# Vim swap files
+*.swp
+*.swo
+
+# macOS metadata
+__MACOSX/
+
+
+# ---- Misc tooling ------------------------------------------------------------
+.phpactor.json
+auth.json
+Homestead.json
+Homestead.yaml
+_ide_helper.php
+_ide_helper_models.php
+.codex/
+
+
+.kiro/
+plan/
+overview.md
