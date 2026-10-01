@@ -1,4 +1,4 @@
-import type { ServiceRequest } from '@/lib/types'
+import type { ServiceRequest, Farm } from '@/lib/types'
 import { serviceTypeLabel, formatDate } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import Link from 'next/link'
@@ -7,6 +7,8 @@ import { ClipboardList } from 'lucide-react'
 interface Props {
   requests: ServiceRequest[]
   farmerId: string
+  /** Optional: resolves farm names for each request card. */
+  farms?: Farm[]
 }
 
 function statusVariant(status: string): 'success' | 'warning' | 'default' {
@@ -17,7 +19,7 @@ function statusVariant(status: string): 'success' | 'warning' | 'default' {
   }
 }
 
-export default function ServiceRequestList({ requests, farmerId }: Props) {
+export default function ServiceRequestList({ requests, farmerId, farms = [] }: Props) {
   if (requests.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-12 text-center">
@@ -40,24 +42,31 @@ export default function ServiceRequestList({ requests, farmerId }: Props) {
 
   return (
     <div className="space-y-3">
-      {requests.map((req, i) => (
-        <div
-          key={req.id}
-          className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm motion-safe:animate-slide-in-up"
-          style={{ animationDelay: `${i * 60}ms` }}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-black">{serviceTypeLabel(req.type)}</p>
-              <p className="font-mono text-xs text-gold mt-0.5">{req.reference}</p>
+      {requests.map((req, i) => {
+        const farmName = farms.find((f) => f.id === req.farm_id)?.farm_name
+
+        return (
+          <div
+            key={req.id}
+            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm motion-safe:animate-slide-in-up"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-black">{serviceTypeLabel(req.type)}</p>
+                {farmName && (
+                  <p className="text-xs text-gray-400 mt-0.5">{farmName}</p>
+                )}
+                <p className="font-mono text-xs text-gold mt-0.5">{req.reference}</p>
+              </div>
+              <Badge variant={statusVariant(req.status)} className="flex-shrink-0 capitalize">
+                {req.status}
+              </Badge>
             </div>
-            <Badge variant={statusVariant(req.status)} className="flex-shrink-0 capitalize">
-              {req.status}
-            </Badge>
+            <p className="text-xs text-gray-400 mt-2">{formatDate(req.created_at)}</p>
           </div>
-          <p className="text-xs text-gray-400 mt-2">{formatDate(req.created_at)}</p>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

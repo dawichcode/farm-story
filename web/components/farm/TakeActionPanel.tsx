@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { createServiceRequest, ApiError } from '@/lib/api'
 import { serviceTypeLabel } from '@/lib/utils'
 import Button from '@/components/ui/Button'
-import { CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { CheckCircle, ChevronRight, ArrowLeft, Copy, Check } from 'lucide-react'
 
 const SERVICE_TYPES = [
   'agronomist_visit',
@@ -16,22 +16,24 @@ const SERVICE_TYPES = [
 ] as const
 
 type ServiceType = (typeof SERVICE_TYPES)[number]
-
-type PanelState = 'list' | 'confirm' | 'success'
+type PanelState  = 'list' | 'confirm' | 'success'
 
 interface Props {
   farmerDbId: number
-  farmDbId: number
-  farmName: string
-  farmerId: string   // URL segment for navigation
+  farmDbId:   number
+  farmName:   string
+  farmerId:   string
+  /** Service type keys that should be visually highlighted as recommended. */
+  recommendedTypes?: string[]
 }
 
-export default function TakeActionPanel({ farmerDbId, farmDbId, farmName, farmerId }: Props) {
-  const [panelState, setPanelState]       = useState<PanelState>('list')
-  const [selected, setSelected]           = useState<ServiceType | null>(null)
-  const [reference, setReference]         = useState('')
-  const [submitting, setSubmitting]       = useState(false)
-  const [error, setError]                 = useState('')
+export default function TakeActionPanel({ farmerDbId, farmDbId, farmName, farmerId, recommendedTypes = [] }: Props) {
+  const [panelState, setPanelState] = useState<PanelState>('list')
+  const [selected, setSelected]     = useState<ServiceType | null>(null)
+  const [reference, setReference]   = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError]           = useState('')
+  const [copied, setCopied]         = useState(false)
 
   function handleSelect(type: ServiceType) {
     setSelected(type)
@@ -48,23 +50,24 @@ export default function TakeActionPanel({ farmerDbId, farmDbId, farmName, farmer
     if (!selected) return
     setError('')
     setSubmitting(true)
-
     try {
-      const req = await createServiceRequest({
-        farmer_id: farmerDbId,
-        farm_id:   farmDbId,
-        type:      selected,
-      })
+      const req = await createServiceRequest({ farmer_id: farmerDbId, farm_id: farmDbId, type: selected })
       setReference(req.reference)
       setPanelState('success')
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : 'Something went wrong. Please try again.',
-      )
+      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleCopyReference() {
+    try {
+      await navigator.clipboard.writeText(reference)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Silent fail
     }
   }
 
@@ -76,18 +79,33 @@ export default function TakeActionPanel({ farmerDbId, farmDbId, farmName, farmer
           <h2 className="font-display text-lg font-semibold text-black">How can we help?</h2>
           <p className="text-sm text-gray-500 mt-0.5">Select a service to submit a request.</p>
         </div>
-
         <div className="space-y-2">
-          {SERVICE_TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() => handleSelect(type)}
-              className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm font-medium text-black hover:border-agric-green hover:bg-green-50 transition-colors duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agric-green"
-            >
-              <span>{serviceTypeLabel(type)}</span>
-              <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" aria-hidden="true" />
-            </button>
-          ))}
+          {SERVICE_TYPES.map((type) => {
+            const isRecommended = recommendedTypes.includes(type)
+            return (
+              <button
+                key={type}
+                onClick={() => handleSelect(type)}
+                className={[
+                  'w-full flex items-center justify-between rounded-xl border bg-white px-4 py-3.5 text-sm font-medium text-black',
+                  'transition-colors duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agric-green',
+                  isRecommended
+                    ? 'border-agric-green/40 hover:border-agric-green hover:bg-green-50'
+                    : 'border-gray-200 hover:border-agric-green hover:bg-green-50',
+                ].join(' ')}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  {isRecommended && (
+                    <span className="inline-flex items-center text-[10px] font-semibold tracking-wide text-agric-green uppercase bg-agric-green/10 rounded px-1.5 py-0.5 flex-shrink-0">
+                      Recommended
+                    </span>
+                  )}
+                  <span className="truncate">{serviceTypeLabel(type)}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0 ml-2" aria-hidden="true" />
+              </button>
+            )
+          })}
         </div>
       </div>
     )
@@ -97,13 +115,10 @@ export default function TakeActionPanel({ farmerDbId, farmDbId, farmName, farmer
   if (panelState === 'confirm' && selected) {
     return (
       <div className="space-y-5 motion-safe:animate-roll-in">
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition-colors duration-150"
-        >
+        <Button variant="ghost" size="sm" onClick={handleBack} className="-ml-2">
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           Back
-        </button>
+        </Button>
 
         <div>
           <h2 className="font-display text-lg font-semibold text-black">Request service</h2>
@@ -150,14 +165,27 @@ export default function TakeActionPanel({ farmerDbId, farmDbId, farmName, farmer
           </div>
         </div>
 
+        {/* Reference with copy button */}
         <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-xs text-gray-400 uppercase tracking-widest font-medium mb-1.5">Reference</p>
-          <p className="font-mono text-xl font-medium text-gold tracking-wider">{reference}</p>
+          <p className="text-xs text-gray-400 uppercase tracking-widest font-medium mb-2">Reference</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-mono text-xl font-medium text-gold tracking-wider">{reference}</p>
+            <button
+              onClick={handleCopyReference}
+              aria-label={copied ? 'Copied' : 'Copy reference number'}
+              className="p-1.5 rounded-md text-gray-400 hover:text-agric-green hover:bg-agric-green/10 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agric-green flex-shrink-0"
+            >
+              {copied
+                ? <Check className="w-4 h-4 text-agric-green" aria-hidden="true" />
+                : <Copy className="w-4 h-4" aria-hidden="true" />
+              }
+            </button>
+          </div>
         </div>
 
         <Link
           href={`/farmer/${farmerId}`}
-          className="flex items-center justify-center w-full h-11 rounded-lg border border-gray-300 bg-white text-sm font-medium text-black hover:bg-gray-50 transition-colors duration-150"
+          className="flex items-center justify-center w-full h-11 rounded-lg border border-gray-300 bg-white text-sm font-medium text-black hover:bg-gray-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
           Back to dashboard
         </Link>

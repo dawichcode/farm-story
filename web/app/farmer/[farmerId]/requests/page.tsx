@@ -1,31 +1,28 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { getServiceRequests, getFarmerById, ApiError } from '@/lib/api'
+import { useParams } from 'next/navigation'
+import { getServiceRequests, getFarmerById, getFarms, ApiError } from '@/lib/api'
 import { useFarmerStore } from '@/store/useFarmerStore'
-import type { ServiceRequest } from '@/lib/types'
-import type { PaginationMeta } from '@/lib/types'
+import type { ServiceRequest, PaginationMeta, Farm } from '@/lib/types'
 import Spinner from '@/components/ui/Spinner'
 import Button from '@/components/ui/Button'
 import ServiceRequestList from '@/components/farmer/ServiceRequestList'
-import { ChevronLeft } from 'lucide-react'
-import BrandLogo from '@/components/ui/BrandLogo'
+import FarmerShell from '@/components/farmer/FarmerShell'
 
 export default function FarmerRequestsPage() {
   const { farmerId } = useParams<{ farmerId: string }>()
-  const router = useRouter()
   const { farmerId: storeDbId, farmerPublicId, setFarmer } = useFarmerStore()
 
   const [farmerDbId, setFarmerDbId]   = useState<number | null>(storeDbId)
   const [displayId, setDisplayId]     = useState(farmerPublicId ?? '')
   const [requests, setRequests]       = useState<ServiceRequest[]>([])
+  const [farms, setFarms]             = useState<Farm[]>([])
   const [meta, setMeta]               = useState<PaginationMeta | null>(null)
   const [loading, setLoading]         = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError]             = useState('')
 
-  // Resolve farmer DB ID from store or API
   useEffect(() => {
     async function resolveAndLoad() {
       let dbId = storeDbId
@@ -48,6 +45,9 @@ export default function FarmerRequestsPage() {
         const { data, meta: m } = await getServiceRequests({ farmer_id: dbId })
         setRequests(data)
         setMeta(m)
+        // Also fetch farms so cards can show the farm name
+        const { data: farmList } = await getFarms(dbId)
+        setFarms(farmList)
       } catch (err) {
         setError(
           err instanceof ApiError ? err.message : 'Could not load service requests.',
@@ -78,29 +78,13 @@ export default function FarmerRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top bar */}
-      <header className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push(`/farmer/${farmerId}`)}
-              className="p-1 -ml-1 rounded-lg text-gray-500 hover:text-black hover:bg-gray-100 transition-colors duration-150"
-              aria-label="Back to dashboard"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2">
-              <BrandLogo size="sm" />
-            </div>
-          </div>
-          {displayId && (
-            <span className="font-mono text-xs text-gold">{displayId}</span>
-          )}
-        </div>
-      </header>
-
-      <main className="flex-1 px-4 py-6">
+    <FarmerShell
+      farmerPublicId={displayId || null}
+      backHref={`/farmer/${farmerId}`}
+      backLabel="Back to dashboard"
+      farmerId={farmerId}
+    >
+      <div className="px-4 py-6">
         <div className="max-w-lg mx-auto space-y-6">
           <div className="motion-safe:animate-slide-in-up">
             <h1 className="font-display text-2xl font-bold text-black">Service requests</h1>
@@ -121,8 +105,7 @@ export default function FarmerRequestsPage() {
 
           {!loading && !error && (
             <>
-              <ServiceRequestList requests={requests} farmerId={farmerId} />
-
+              <ServiceRequestList requests={requests} farmerId={farmerId} farms={farms} />
               {meta?.has_more && (
                 <div className="flex justify-center pt-2">
                   <Button variant="secondary" onClick={loadMore} loading={loadingMore}>
@@ -133,7 +116,7 @@ export default function FarmerRequestsPage() {
             </>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </FarmerShell>
   )
 }

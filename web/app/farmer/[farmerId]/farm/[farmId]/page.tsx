@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { getFarmById, getFarmInsight, ApiError } from '@/lib/api'
 import { useFarmerStore } from '@/store/useFarmerStore'
@@ -11,13 +11,12 @@ import FarmIntelligenceCard from '@/components/farm/FarmIntelligenceCard'
 import RecommendationCard from '@/components/farm/RecommendationCard'
 import ProductionMetrics from '@/components/farm/ProductionMetrics'
 import TakeActionPanel from '@/components/farm/TakeActionPanel'
-import { MapPin, Wheat, ChevronLeft } from 'lucide-react'
-import BrandLogo from '@/components/ui/BrandLogo'
-import { formatAcres, formatCoordinate, challengeLabel } from '@/lib/utils'
+import FarmerShell from '@/components/farmer/FarmerShell'
+import { MapPin, Wheat } from 'lucide-react'
+import { formatAcres, formatCoordinate, challengeLabel, recommendationToServiceType } from '@/lib/utils'
 
 export default function FarmDetailPage() {
   const { farmerId, farmId } = useParams<{ farmerId: string; farmId: string }>()
-  const router = useRouter()
   const { farmerPublicId } = useFarmerStore()
 
   const [farm, setFarm]       = useState<Farm | null>(null)
@@ -27,7 +26,6 @@ export default function FarmDetailPage() {
   const [farmError, setFarmError]           = useState('')
   const [insightError, setInsightError]     = useState('')
 
-  // Load farm data
   useEffect(() => {
     async function loadFarm() {
       try {
@@ -46,7 +44,6 @@ export default function FarmDetailPage() {
     loadFarm()
   }, [farmId])
 
-  // Load insight independently so the farm data shows immediately
   useEffect(() => {
     async function loadInsight() {
       try {
@@ -63,45 +60,44 @@ export default function FarmDetailPage() {
 
   if (loadingFarm) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Spinner size="lg" />
-      </div>
+      <FarmerShell
+        farmerPublicId={farmerPublicId}
+        backHref={`/farmer/${farmerId}`}
+        backLabel="Back to dashboard"
+      >
+        <div className="flex items-center justify-center min-h-[calc(100vh-57px)]">
+          <Spinner size="lg" />
+        </div>
+      </FarmerShell>
     )
   }
 
   if (farmError || !farm) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center gap-4">
-        <p className="text-gray-600">{farmError || 'Farm not found.'}</p>
-        <Link href={`/farmer/${farmerId}`} className="text-sm text-agric-green underline underline-offset-2">
-          Back to dashboard
-        </Link>
-      </div>
+      <FarmerShell
+        farmerPublicId={farmerPublicId}
+        backHref={`/farmer/${farmerId}`}
+        backLabel="Back to dashboard"
+      >
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] p-4 text-center gap-4">
+          <p className="text-gray-600">{farmError || 'Farm not found.'}</p>
+          <Link href={`/farmer/${farmerId}`} className="text-sm text-agric-green underline underline-offset-2">
+            Back to dashboard
+          </Link>
+        </div>
+      </FarmerShell>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top bar */}
-      <header className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push(`/farmer/${farmerId}`)}
-              className="p-1 -ml-1 rounded-lg text-gray-500 hover:text-black hover:bg-gray-100 transition-colors duration-150"
-              aria-label="Back to dashboard"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <BrandLogo size="sm" />
-          </div>
-          {farmerPublicId && (
-            <span className="font-mono text-xs text-gold">{farmerPublicId}</span>
-          )}
-        </div>
-      </header>
-
-      <main className="flex-1 px-4 py-6">
+    <FarmerShell
+      farmerPublicId={farmerPublicId}
+      backHref={`/farmer/${farmerId}`}
+      backLabel="Back to dashboard"
+      farmerId={farmerId}
+      currentFarmId={farmId}
+    >
+      <div className="px-4 py-6">
         <div className="max-w-lg mx-auto space-y-6 motion-safe:animate-fade-in">
 
           {/* Farm header */}
@@ -112,12 +108,12 @@ export default function FarmDetailPage() {
                 <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
                 {farm.location}
               </span>
-              <span className="text-gray-300">|</span>
+              <span aria-hidden="true" className="text-gray-300">|</span>
               <span className="flex items-center gap-1">
                 <Wheat className="w-3.5 h-3.5" aria-hidden="true" />
                 {farm.primary_crop}
               </span>
-              <span className="text-gray-300">|</span>
+              <span aria-hidden="true" className="text-gray-300">|</span>
               <span>{formatAcres(farm.size_acres)}</span>
             </div>
           </div>
@@ -153,7 +149,6 @@ export default function FarmDetailPage() {
             </div>
           )}
 
-          {/* Divider */}
           <div className="border-t border-gray-200" />
 
           {/* Farm Intelligence */}
@@ -177,10 +172,19 @@ export default function FarmDetailPage() {
 
             {insight && !loadingInsight && (
               <div className="space-y-4">
+                {/* U4-C: Contextual narrative intro */}
+                <div className="rounded-xl bg-agric-green/5 border border-agric-green/20 p-4 motion-safe:animate-slide-in-up">
+                  <p className="text-sm font-semibold text-agric-green mb-1">Your farm has been assessed.</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{insight.summary}</p>
+                  {insight.recommendations.length > 0 && (
+                    <p className="text-xs text-agric-green/70 mt-2 font-medium">
+                      {insight.recommendations.length} recommendation{insight.recommendations.length !== 1 ? 's' : ''} identified
+                    </p>
+                  )}
+                </div>
+
                 <FarmIntelligenceCard insight={insight} />
-
                 {farm && <ProductionMetrics farm={farm} />}
-
                 {insight.recommendations.length > 0 && (
                   <div className="space-y-3">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
@@ -195,23 +199,22 @@ export default function FarmDetailPage() {
             )}
           </div>
 
-          {/* Divider before Take Action */}
-          {insight && !loadingInsight && (
-            <div className="border-t border-gray-200" />
-          )}
+          {insight && !loadingInsight && <div className="border-t border-gray-200" />}
 
-          {/* Take Action panel */}
           {insight && !loadingInsight && (
             <TakeActionPanel
               farmerDbId={farm.farmer_id}
               farmDbId={farm.id}
               farmName={farm.farm_name}
               farmerId={farmerId}
+              recommendedTypes={insight.recommendations
+                .map((r) => recommendationToServiceType(r.category))
+                .filter((t): t is string => t !== null)}
             />
           )}
 
         </div>
-      </main>
-    </div>
+      </div>
+    </FarmerShell>
   )
 }

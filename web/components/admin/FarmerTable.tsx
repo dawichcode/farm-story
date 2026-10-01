@@ -4,7 +4,6 @@ import type { Farmer, Farm } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import { Users } from 'lucide-react'
 
-// The admin farmer list includes farms nested on each farmer
 type FarmerWithFarms = Farmer & { farms?: Farm[] }
 
 interface Props {
@@ -26,18 +25,19 @@ export default function FarmerTable({ farmers }: Props) {
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
       <table className="w-full text-sm">
+        <caption className="sr-only">Registered farmers</caption>
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50">
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Farmer
             </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+            <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
               County
             </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
+            <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
               Farm
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
+            <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
               Acres
             </th>
           </tr>
@@ -45,11 +45,22 @@ export default function FarmerTable({ farmers }: Props) {
         <tbody className="divide-y divide-gray-100">
           {farmers.map((farmer) => {
             const primaryFarm = farmer.farms?.[0]
+            const href = `/admin/farmers/${farmer.id}`
+
             return (
               <tr
                 key={farmer.id}
-                onClick={() => router.push(`/admin/farmers/${farmer.id}`)}
-                className="hover:bg-gray-50 cursor-pointer transition-colors duration-100"
+                role="link"
+                tabIndex={0}
+                aria-label={`View ${farmer.full_name}`}
+                onClick={() => router.push(href)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    router.push(href)
+                  }
+                }}
+                className="hover:bg-gray-50 cursor-pointer transition-colors duration-100 focus-visible:outline-none focus-visible:bg-agric-green/5 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-agric-green"
               >
                 <td className="px-4 py-3.5">
                   <p className="font-medium text-black">{farmer.full_name}</p>

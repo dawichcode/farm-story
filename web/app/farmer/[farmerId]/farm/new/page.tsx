@@ -7,7 +7,7 @@ import { useFarmerStore } from '@/store/useFarmerStore'
 import { useFarmFormStore } from '@/store/useFarmFormStore'
 import FarmRegistrationForm from '@/components/farm/FarmRegistrationForm'
 import Spinner from '@/components/ui/Spinner'
-import BrandLogo from '@/components/ui/BrandLogo'
+import FarmerShell from '@/components/farmer/FarmerShell'
 
 export default function FarmNewPage() {
   const { farmerId } = useParams<{ farmerId: string }>()
@@ -22,10 +22,8 @@ export default function FarmNewPage() {
   const [loading, setLoading]       = useState(!storeId)
   const [error, setError]           = useState('')
 
-  // If the store is empty (e.g. page refresh), fetch the farmer from the API
   useEffect(() => {
     if (storeId) return
-
     async function load() {
       try {
         const farmer = await getFarmerById(farmerId)
@@ -34,11 +32,11 @@ export default function FarmNewPage() {
         setDisplayId(farmer.farmer_id)
         setName(farmer.full_name)
       } catch (err) {
-        if (err instanceof ApiError && err.status === 404) {
-          setError('Farmer not found.')
-        } else {
-          setError('Could not load farmer data. Please try again.')
-        }
+        setError(
+          err instanceof ApiError && err.status === 404
+            ? 'Farmer not found.'
+            : 'Could not load farmer data. Please try again.',
+        )
       } finally {
         setLoading(false)
       }
@@ -46,7 +44,6 @@ export default function FarmNewPage() {
     load()
   }, [farmerId, storeId, setFarmer])
 
-  // Reset the multi-step form store when entering this page fresh
   useEffect(() => {
     resetForm()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,33 +55,27 @@ export default function FarmNewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Spinner size="lg" />
-      </div>
+      <FarmerShell farmerPublicId={displayId || null} farmerId={farmerId}>
+        <div className="flex items-center justify-center min-h-[calc(100vh-57px)]">
+          <Spinner size="lg" />
+        </div>
+      </FarmerShell>
     )
   }
 
   if (error || !farmerDbId) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center gap-4">
-        <p className="text-gray-600">{error || 'Farmer not found.'}</p>
-      </div>
+      <FarmerShell farmerPublicId={displayId || null} farmerId={farmerId}>
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] p-4 text-center gap-4">
+          <p className="text-gray-600">{error || 'Farmer not found.'}</p>
+        </div>
+      </FarmerShell>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top bar */}
-      <header className="bg-white border-b border-gray-100 px-4 py-4">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <BrandLogo size="md" />
-          {displayId && (
-            <span className="font-mono text-xs text-gold">{displayId}</span>
-          )}
-        </div>
-      </header>
-
-      <main className="flex-1 px-4 py-8">
+    <FarmerShell farmerPublicId={displayId || null} farmerId={farmerId}>
+      <div className="px-4 py-8">
         <div className="max-w-lg mx-auto space-y-6">
           <div className="motion-safe:animate-slide-in-up">
             <h1 className="font-display text-2xl font-bold text-black">Register your farm</h1>
@@ -100,7 +91,7 @@ export default function FarmNewPage() {
             <FarmRegistrationForm farmerDbId={farmerDbId} onSuccess={handleSuccess} />
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </FarmerShell>
   )
 }

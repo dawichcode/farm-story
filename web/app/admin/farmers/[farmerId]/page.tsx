@@ -1,18 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { getAdminFarmerDetail } from '@/lib/api'
-import type { AdminFarmerDetail } from '@/lib/types'
+import type { AdminFarmerDetail, ServiceRequest } from '@/lib/types'
 import Spinner from '@/components/ui/Spinner'
-import Badge from '@/components/ui/Badge'
+import LoadingState from '@/components/ui/LoadingState'
+import ErrorState from '@/components/ui/ErrorState'
 import FarmIntelligenceCard from '@/components/farm/FarmIntelligenceCard'
 import RecommendationCard from '@/components/farm/RecommendationCard'
 import ProductionMetrics from '@/components/farm/ProductionMetrics'
-import { ChevronLeft, User, MapPin, Wheat, Phone, Mail, Globe } from 'lucide-react'
-import { formatAcres, formatCoordinate, challengeLabel, serviceTypeLabel, formatDate } from '@/lib/utils'
+import ServiceRequestTable from '@/components/admin/ServiceRequestTable'
+import { ChevronLeft, MapPin, Wheat, Phone, Mail, Globe } from 'lucide-react'
+import { formatAcres, formatCoordinate, challengeLabel } from '@/lib/utils'
 
 const FarmLocationMap = dynamic(
   () => import('@/components/map/FarmLocationMap'),
@@ -40,17 +42,9 @@ function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label:
   )
 }
 
-function statusVariant(status: string): 'success' | 'warning' | 'default' {
-  switch (status.toLowerCase()) {
-    case 'completed': return 'success'
-    case 'pending':   return 'warning'
-    default:          return 'default'
-  }
-}
 
 export default function AdminFarmerDetailPage() {
   const { farmerId } = useParams<{ farmerId: string }>()
-  const router = useRouter()
 
   const [farmer, setFarmer] = useState<AdminFarmerDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -64,21 +58,17 @@ export default function AdminFarmerDetailPage() {
   }, [farmerId])
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    )
+    return <LoadingState label="Loading farmer record..." />
   }
 
   if (error || !farmer) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <p className="text-gray-600">{error || 'Farmer not found.'}</p>
-        <Link href="/admin/farmers" className="text-sm text-agric-green underline underline-offset-2">
-          Back to farmers
-        </Link>
-      </div>
+      <ErrorState
+        title="Farmer not found"
+        message={error || 'This farmer record could not be loaded.'}
+        actionLabel="Back to farmers"
+        actionHref="/admin/farmers"
+      />
     )
   }
 
@@ -90,13 +80,13 @@ export default function AdminFarmerDetailPage() {
     <div className="px-6 py-8 max-w-3xl mx-auto space-y-10 motion-safe:animate-fade-in">
 
       {/* Back */}
-      <button
-        onClick={() => router.push('/admin/farmers')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition-colors duration-150"
+      <Link
+        href="/admin/farmers"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition-colors duration-150"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Back to farmers
-      </button>
+      </Link>
 
       {/* ---- Section 1: Farmer profile ---- */}
       <Section title="Farmer profile">
@@ -211,38 +201,7 @@ export default function AdminFarmerDetailPage() {
 
       {/* ---- Section 5: Service requests ---- */}
       <Section title="Service requests">
-        {reqs.length === 0 ? (
-          <p className="text-sm text-gray-400">No service requests submitted.</p>
-        ) : (
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Reference</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {reqs.map((req) => (
-                  <tr key={req.id} className="hover:bg-gray-50 transition-colors duration-100">
-                    <td className="px-4 py-3.5">
-                      <span className="font-mono text-xs text-gold">{req.reference}</span>
-                    </td>
-                    <td className="px-4 py-3.5 text-gray-700">{serviceTypeLabel(req.type)}</td>
-                    <td className="px-4 py-3.5">
-                      <Badge variant={statusVariant(req.status)} className="capitalize">{req.status}</Badge>
-                    </td>
-                    <td className="px-4 py-3.5 text-right text-gray-400 hidden sm:table-cell">
-                      {formatDate(req.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <ServiceRequestTable requests={reqs as (ServiceRequest & { farmer?: never; farm?: never })[]} />
       </Section>
 
     </div>

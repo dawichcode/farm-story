@@ -62,6 +62,10 @@ export default function FarmRegistrationForm({ farmerDbId, onSuccess }: Props) {
     setAnimKey((k) => k + 1)
     setStep(next)
     store.setStep(next)
+    // Scroll to top so the step indicator is always visible
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   function advance() { goTo(step + 1, 'forward') }
@@ -110,13 +114,6 @@ export default function FarmRegistrationForm({ farmerDbId, onSuccess }: Props) {
     setGlobalError('')
     if (step === 1 && !validateStep1()) return
     if (step === 2 && isCoffee && !validateStep2()) return
-
-    // If non-coffee, step 2 is challenges (step 3 in the UI numbering)
-    const locationStep = isCoffee ? 4 : 3
-    if (step === locationStep - 1) {
-      advance()
-      return
-    }
     advance()
   }
 
@@ -167,9 +164,11 @@ export default function FarmRegistrationForm({ farmerDbId, onSuccess }: Props) {
     }
   }
 
-  const slideIn  = direction === 'forward' ? 'motion-safe:animate-slide-in-right' : 'motion-safe:animate-slide-in-left'
+  const enterClass = direction === 'forward'
+    ? 'motion-safe:animate-slide-in-right'
+    : 'motion-safe:animate-slide-in-left'
 
-  const locationStep = isCoffee ? 4 : 3
+  const locationStep  = isCoffee ? 4 : 3
   const challengeStep = isCoffee ? 3 : 2
 
   return (
@@ -177,8 +176,8 @@ export default function FarmRegistrationForm({ farmerDbId, onSuccess }: Props) {
       {/* Step indicator */}
       <StepIndicator current={step} total={isCoffee ? 4 : 3} />
 
-      {/* Step panels */}
-      <div key={animKey} className={slideIn}>
+      {/* Step panels — keyed so React remounts on step change, triggering entrance animation */}
+      <div key={animKey} className={enterClass}>
         {/* ---- Step 1: Farm Information ---- */}
         {step === 1 && (
           <div className="space-y-5">

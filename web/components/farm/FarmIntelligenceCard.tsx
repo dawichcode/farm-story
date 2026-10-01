@@ -1,21 +1,68 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
 import type { FarmInsight } from '@/lib/types'
 
 interface Props {
   insight: FarmInsight
+  /** Set false to skip the count-up animation (e.g. in print views). Default: true. */
+  animate?: boolean
 }
 
-export default function FarmIntelligenceCard({ insight }: Props) {
-  // Arc is a simple SVG circle progress ring
-  const radius   = 52
-  const stroke   = 8
-  const circ     = 2 * Math.PI * radius
-  const progress = circ - (insight.score / 100) * circ
+export default function FarmIntelligenceCard({ insight, animate = true }: Props) {
+  const radius = 52
+  const stroke = 8
+  const circ   = 2 * Math.PI * radius
+
+  // displayScore drives both the SVG ring and the number counter.
+  const [displayScore, setDisplayScore] = useState(animate ? 0 : insight.score)
+  const [pulsing, setPulsing]           = useState(animate)
+  const rafRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!animate) return
+
+    const target    = insight.score
+    const duration  = 800  // ms
+    const startTime = performance.now()
+
+    function tick(now: number) {
+      const elapsed  = now - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      // Cubic ease-out: t = 1 - (1 - progress)^3
+      const eased    = 1 - Math.pow(1 - progress, 3)
+      const current  = Math.round(eased * target)
+
+      setDisplayScore(current)
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        setDisplayScore(target)
+        setPulsing(false)
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+    }
+  }, [animate, insight.score])
+
+  const offset = circ - (displayScore / 100) * circ
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 motion-safe:animate-jump-in">
       <div className="flex flex-col items-center text-center gap-4">
+
         {/* Score ring */}
-        <div className="relative w-32 h-32 flex items-center justify-center">
+        <div
+          className={[
+            'relative w-32 h-32 flex items-center justify-center',
+            pulsing ? 'motion-safe:animate-score-pulse' : '',
+          ].join(' ')}
+        >
           <svg
             width="128"
             height="128"
@@ -25,32 +72,27 @@ export default function FarmIntelligenceCard({ insight }: Props) {
           >
             {/* Track */}
             <circle
-              cx="64"
-              cy="64"
-              r={radius}
+              cx="64" cy="64" r={radius}
               fill="none"
               stroke="#E5E7EB"
               strokeWidth={stroke}
             />
-            {/* Progress */}
+            {/* Progress — driven by JS state, no CSS transition needed */}
             <circle
-              cx="64"
-              cy="64"
-              r={radius}
+              cx="64" cy="64" r={radius}
               fill="none"
               stroke="#C9A84C"
               strokeWidth={stroke}
               strokeLinecap="round"
               strokeDasharray={circ}
-              strokeDashoffset={progress}
-              className="transition-all duration-700 ease-out"
+              strokeDashoffset={offset}
             />
           </svg>
 
           {/* Score number */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center" aria-live="polite" aria-atomic="true">
             <span className="font-display text-3xl font-bold text-black leading-none">
-              {insight.score}
+              {displayScore}
             </span>
             <span className="text-xs text-gray-400 mt-0.5">/ 100</span>
           </div>

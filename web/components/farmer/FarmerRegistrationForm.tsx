@@ -118,6 +118,11 @@ export default function FarmerRegistrationForm({ onSuccess }: Props) {
     }
   }
 
+  // Compute form completion progress (required fields only)
+  const REQUIRED_FIELDS: (keyof FormData)[] = ['full_name', 'mobile_number', 'county', 'preferred_language']
+  const filled = REQUIRED_FIELDS.filter((f) => form[f].trim().length > 0).length
+  const progress = Math.round((filled / REQUIRED_FIELDS.length) * 100)
+
   // ---- Confirmation screen ----
   if (confirmed) {
     return (
@@ -150,6 +155,24 @@ export default function FarmerRegistrationForm({ onSuccess }: Props) {
   // ---- Registration form ----
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5 motion-safe:animate-fade-in">
+      {/* Progress bar */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-xs text-gray-400 font-medium">Farmer details</p>
+          <p className="text-xs text-gray-400">{filled} / {REQUIRED_FIELDS.length} required fields</p>
+        </div>
+        <div className="h-1 rounded-full bg-gray-100 overflow-hidden">
+          <div
+            className="h-full bg-agric-green rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Form completion"
+          />
+        </div>
+      </div>
       {globalError && (
         <div role="alert" className="rounded-lg border border-crimson/30 bg-red-50 px-4 py-3 text-sm text-crimson">
           {globalError}

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { getAdminRequests } from '@/lib/api'
 import type { ServiceRequest, Farmer, Farm, PaginationMeta } from '@/lib/types'
 import ServiceRequestTable from '@/components/admin/ServiceRequestTable'
-import Spinner from '@/components/ui/Spinner'
+import FarmerTableSkeleton from '@/components/admin/FarmerTableSkeleton'
+import ErrorState from '@/components/ui/ErrorState'
 import Button from '@/components/ui/Button'
 
 type RequestWithRelations = ServiceRequest & { farmer?: Farmer; farm?: Farm }
@@ -47,14 +48,14 @@ export default function AdminRequestsPage() {
         <p className="text-sm text-gray-500 mt-1">All submitted service requests</p>
       </div>
 
-      {loading && (
-        <div className="flex justify-center py-16"><Spinner size="lg" /></div>
-      )}
+      {loading && <FarmerTableSkeleton />}
 
       {error && !loading && (
-        <div role="alert" className="rounded-lg border border-crimson/30 bg-red-50 px-4 py-3 text-sm text-crimson">
-          {error}
-        </div>
+        <ErrorState
+          message="Could not load service requests."
+          actionLabel="Retry"
+          actionHref="/admin/requests"
+        />
       )}
 
       {!loading && !error && (

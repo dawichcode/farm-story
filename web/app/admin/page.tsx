@@ -1,17 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { getAdminDashboard } from '@/lib/api'
 import type { AdminDashboardData } from '@/lib/types'
 import DashboardMetricCard from '@/components/admin/DashboardMetricCard'
 import Spinner from '@/components/ui/Spinner'
-import { Users, Layers, Wheat, ClipboardList } from 'lucide-react'
+import { Users, Layers, Wheat, ClipboardList, RefreshCw } from 'lucide-react'
+import { timeAgo } from '@/lib/utils'
 
 const METRICS = [
-  { key: 'farmers_count',    label: 'Farmers onboarded',      icon: Users },
-  { key: 'acres_total',      label: 'Acres registered',        icon: Layers },
+  { key: 'farmers_count',    label: 'Farmers onboarded',        icon: Users },
+  { key: 'acres_total',      label: 'Acres registered',          icon: Layers },
   { key: 'production_total', label: 'Estimated production (kg)', icon: Wheat },
-  { key: 'requests_count',   label: 'Service requests',        icon: ClipboardList },
+  { key: 'requests_count',   label: 'Service requests',          icon: ClipboardList },
 ] as const
 
 function formatMetricValue(key: typeof METRICS[number]['key'], data: AdminDashboardData): string {
@@ -22,22 +23,65 @@ function formatMetricValue(key: typeof METRICS[number]['key'], data: AdminDashbo
 }
 
 export default function AdminDashboardPage() {
-  const [data, setData]       = useState<AdminDashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState('')
+  const [data, setData]           = useState<AdminDashboardData | null>(null)
+  const [loading, setLoading]     = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [error, setError]         = useState('')
+  const [refreshedAt, setRefreshedAt] = useState<Date | null>(null)
+  const [timeLabel, setTimeLabel] = useState('just now')
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  async function fetchData(isRefresh = false) {
+    if (isRefresh) setRefreshing(true)
+    else setLoading(true)
+    setError('')
+    try {
+      const result = await getAdminDashboard()
+      setData(result)
+      const now = new Date()
+      setRefreshedAt(now)
+      setTimeLabel('just now')
+    } catch {
+      setError('Could not load dashboard data.')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  useEffect(() => { fetchData() }, [])
+
+  // Keep the "X min ago" label live without re-fetching data
   useEffect(() => {
-    getAdminDashboard()
-      .then(setData)
-      .catch(() => setError('Could not load dashboard data.'))
-      .finally(() => setLoading(false))
-  }, [])
+    timerRef.current = setInterval(() => {
+      if (refreshedAt) setTimeLabel(timeAgo(refreshedAt))
+    }, 15_000)
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [refreshedAt])
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto space-y-8 motion-safe:animate-fade-in">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-black">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Platform overview</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-black">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">Platform overview</p>
+        </div>
+        {refreshedAt && (
+          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+            <span className="text-xs text-gray-400">Updated {timeLabel}</span>
+            <button
+              onClick={() => fetchData(true)}
+              disabled={refreshing}
+              aria-label="Refresh dashboard"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-black hover:bg-gray-100 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-agric-green disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        )}
       </div>
 
       {loading && (
@@ -52,7 +96,6 @@ export default function AdminDashboardPage() {
 
       {data && !loading && (
         <>
-          {/* Metric cards */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
             {METRICS.map(({ key, label, icon }, i) => (
               <DashboardMetricCard
@@ -65,7 +108,6 @@ export default function AdminDashboardPage() {
             ))}
           </div>
 
-          {/* County distribution */}
           {data.farmers_by_county.length > 0 && (
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden motion-safe:animate-slide-in-up">
               <div className="px-5 py-4 border-b border-gray-100">

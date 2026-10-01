@@ -180,8 +180,9 @@ export default function FarmLocationPicker({ latitude, longitude, onChange }: Pr
       </div>
 
       {latitude && longitude && (
-        <p className="text-xs font-mono text-gold bg-yellow-50 border border-gold/20 rounded-lg px-3 py-2">
-          {parseFloat(latitude).toFixed(6)}, {parseFloat(longitude).toFixed(6)}
+        <p className="flex items-center gap-1.5 text-xs font-mono text-gold bg-yellow-50 border border-gold/20 rounded-lg px-3 py-2 motion-safe:animate-slide-in-up">
+          <MapPin className="w-3.5 h-3.5 text-agric-green flex-shrink-0" aria-hidden="true" />
+          Pin confirmed at {parseFloat(latitude).toFixed(6)}, {parseFloat(longitude).toFixed(6)}
         </p>
       )}
     </div>
