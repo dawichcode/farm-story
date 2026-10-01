@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
 
       {data && !loading && (
         <>
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {METRICS.map(({ key, label, icon }, i) => (
               <DashboardMetricCard
                 key={key}

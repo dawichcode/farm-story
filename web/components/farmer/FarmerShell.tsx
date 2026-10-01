@@ -40,7 +40,9 @@ export default function FarmerShell({
   currentFarmId,
 }: FarmerShellProps) {
   const router = useRouter()
-  const maxW = headerWidth === 'md' ? 'max-w-md' : 'max-w-lg'
+  // On desktop the header stretches to a wide max-w — farmer pages are
+  // centered in max-w-3xl but the header tracks the full content width.
+  const maxW = headerWidth === 'md' ? 'max-w-2xl' : 'max-w-5xl'
   const showBottomNav = !!farmerId
 
   function handleBack() {
@@ -52,8 +54,8 @@ export default function FarmerShell({
       className={`min-h-screen bg-gray-50 flex flex-col ${className}`}
       style={background === 'default' ? GRAIN_STYLE : undefined}
     >
-      {/* Sticky header */}
-      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3.5 sticky top-0 z-20">
+      {/* Sticky header — full-bleed with wider inner container on desktop */}
+      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 lg:px-8 py-3.5 sticky top-0 z-20">
         <div className={`${maxW} mx-auto flex items-center justify-between gap-3`}>
           <div className="flex items-center gap-2 min-w-0">
             {backHref && (
@@ -80,12 +82,11 @@ export default function FarmerShell({
         </div>
       </header>
 
-      {/* Page content — add bottom padding on mobile when bottom nav is present */}
+      {/* Page content */}
       <main className={`flex-1 ${showBottomNav ? 'pb-16 md:pb-0' : ''}`}>
         {children}
       </main>
 
-      {/* Mobile bottom navigation */}
       {showBottomNav && (
         <FarmerBottomNav farmerId={farmerId} farmId={currentFarmId} />
       )}

@@ -185,6 +185,7 @@ export default function FarmRegistrationForm({ farmerDbId, onSuccess }: Props) {
 
             {globalError && <ErrorBanner message={globalError} />}
 
+            <div className="grid sm:grid-cols-2 gap-5">
             <Field label="Farm name" htmlFor="farm_name" required error={s1errors.farm_name}>
               <Input
                 id="farm_name" name="farm_name" type="text"
@@ -227,6 +228,7 @@ export default function FarmRegistrationForm({ farmerDbId, onSuccess }: Props) {
                 {CROPS.map((c) => <option key={c} value={c}>{c}</option>)}
               </Select>
             </Field>
+            </div>{/* end sm:grid-cols-2 */}
           </div>
         )}
 

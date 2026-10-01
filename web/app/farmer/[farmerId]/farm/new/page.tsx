@@ -75,17 +75,17 @@ export default function FarmNewPage() {
 
   return (
     <FarmerShell farmerPublicId={displayId || null} farmerId={farmerId}>
-      <div className="px-4 py-8">
-        <div className="max-w-lg mx-auto space-y-6">
+      <div className="px-4 lg:px-8 py-8 lg:py-12">
+        <div className="max-w-2xl mx-auto space-y-6">
           <div className="motion-safe:animate-slide-in-up">
-            <h1 className="font-display text-2xl font-bold text-black">Register your farm</h1>
+            <h1 className="font-display text-2xl lg:text-3xl font-bold text-black">Register your farm</h1>
             {name && (
               <p className="text-sm text-gray-500 mt-1">Registering for {name}</p>
             )}
           </div>
 
           <div
-            className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 motion-safe:animate-slide-in-up"
+            className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 lg:p-8 motion-safe:animate-slide-in-up"
             style={{ animationDelay: '60ms' }}
           >
             <FarmRegistrationForm farmerDbId={farmerDbId} onSuccess={handleSuccess} />

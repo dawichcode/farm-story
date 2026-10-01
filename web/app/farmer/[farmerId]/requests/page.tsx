@@ -84,8 +84,8 @@ export default function FarmerRequestsPage() {
       backLabel="Back to dashboard"
       farmerId={farmerId}
     >
-      <div className="px-4 py-6">
-        <div className="max-w-lg mx-auto space-y-6">
+      <div className="px-4 lg:px-8 py-6 lg:py-10">
+        <div className="max-w-3xl mx-auto space-y-6">
           <div className="motion-safe:animate-slide-in-up">
             <h1 className="font-display text-2xl font-bold text-black">Service requests</h1>
             <p className="text-sm text-gray-500 mt-1">All requests you have submitted.</p>

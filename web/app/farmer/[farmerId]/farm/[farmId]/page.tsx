@@ -97,12 +97,12 @@ export default function FarmDetailPage() {
       farmerId={farmerId}
       currentFarmId={farmId}
     >
-      <div className="px-4 py-6">
-        <div className="max-w-lg mx-auto space-y-6 motion-safe:animate-fade-in">
+      <div className="px-4 lg:px-8 py-6 lg:py-10">
+        <div className="max-w-5xl mx-auto motion-safe:animate-fade-in">
 
           {/* Farm header */}
-          <div className="motion-safe:animate-slide-in-up">
-            <h1 className="font-display text-2xl font-bold text-black">{farm.farm_name}</h1>
+          <div className="mb-6 motion-safe:animate-slide-in-up">
+            <h1 className="font-display text-2xl lg:text-3xl font-bold text-black">{farm.farm_name}</h1>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-sm text-gray-500">
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
@@ -118,99 +118,113 @@ export default function FarmDetailPage() {
             </div>
           </div>
 
-          {/* Coordinates */}
-          <div
-            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm motion-safe:animate-slide-in-up"
-            style={{ animationDelay: '60ms' }}
-          >
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-2">Coordinates</p>
-            <p className="font-mono text-sm text-gold">
-              {formatCoordinate(farm.latitude)}, {formatCoordinate(farm.longitude)}
-            </p>
-          </div>
+          {/* Desktop two-column grid */}
+          <div className="grid lg:grid-cols-[340px_1fr] gap-6 items-start">
 
-          {/* Challenges */}
-          {farm.challenges && farm.challenges.length > 0 && (
-            <div
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm motion-safe:animate-slide-in-up"
-              style={{ animationDelay: '80ms' }}
-            >
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Challenges</p>
-              <div className="flex flex-wrap gap-2">
-                {farm.challenges.map((key) => (
-                  <span
-                    key={key}
-                    className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-700"
-                  >
-                    {challengeLabel(key)}
-                  </span>
-                ))}
+            {/* ---- Left column: farm metadata ---- */}
+            <div className="space-y-4">
+              {/* Coordinates */}
+              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm motion-safe:animate-slide-in-up" style={{ animationDelay: '60ms' }}>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-2">Coordinates</p>
+                <p className="font-mono text-sm text-gold">
+                  {formatCoordinate(farm.latitude)}, {formatCoordinate(farm.longitude)}
+                </p>
               </div>
-            </div>
-          )}
 
-          <div className="border-t border-gray-200" />
-
-          {/* Farm Intelligence */}
-          <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
-              Farm Intelligence
-            </p>
-
-            {loadingInsight && (
-              <div className="flex flex-col items-center gap-3 py-8 text-gray-400">
-                <Spinner size="lg" />
-                <p className="text-sm">Calculating your Farm Opportunity Score...</p>
-              </div>
-            )}
-
-            {insightError && !loadingInsight && (
-              <div className="rounded-lg border border-crimson/30 bg-red-50 px-4 py-3 text-sm text-crimson">
-                {insightError}
-              </div>
-            )}
-
-            {insight && !loadingInsight && (
-              <div className="space-y-4">
-                {/* U4-C: Contextual narrative intro */}
-                <div className="rounded-xl bg-agric-green/5 border border-agric-green/20 p-4 motion-safe:animate-slide-in-up">
-                  <p className="text-sm font-semibold text-agric-green mb-1">Your farm has been assessed.</p>
-                  <p className="text-sm text-gray-600 leading-relaxed">{insight.summary}</p>
-                  {insight.recommendations.length > 0 && (
-                    <p className="text-xs text-agric-green/70 mt-2 font-medium">
-                      {insight.recommendations.length} recommendation{insight.recommendations.length !== 1 ? 's' : ''} identified
-                    </p>
-                  )}
-                </div>
-
-                <FarmIntelligenceCard insight={insight} />
-                {farm && <ProductionMetrics farm={farm} />}
-                {insight.recommendations.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
-                      Recommendations
-                    </p>
-                    {insight.recommendations.map((rec, i) => (
-                      <RecommendationCard key={`${rec.category}-${i}`} recommendation={rec} index={i} />
+              {/* Challenges */}
+              {farm.challenges && farm.challenges.length > 0 && (
+                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm motion-safe:animate-slide-in-up" style={{ animationDelay: '80ms' }}>
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Challenges</p>
+                  <div className="flex flex-wrap gap-2">
+                    {farm.challenges.map((key) => (
+                      <span key={key} className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-700">
+                        {challengeLabel(key)}
+                      </span>
                     ))}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              )}
 
-          {insight && !loadingInsight && <div className="border-t border-gray-200" />}
+              {/* Take Action — shown on left column on desktop */}
+              {insight && !loadingInsight && (
+                <div className="hidden lg:block">
+                  <div className="border-t border-gray-200 mb-4" />
+                  <TakeActionPanel
+                    farmerDbId={farm.farmer_id}
+                    farmDbId={farm.id}
+                    farmName={farm.farm_name}
+                    farmerId={farmerId}
+                    recommendedTypes={insight.recommendations
+                      .map((r) => recommendationToServiceType(r.category))
+                      .filter((t): t is string => t !== null)}
+                  />
+                </div>
+              )}
+            </div>
 
+            {/* ---- Right column: intelligence ---- */}
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                Farm Intelligence
+              </p>
+
+              {loadingInsight && (
+                <div className="flex flex-col items-center gap-3 py-12 text-gray-400">
+                  <Spinner size="lg" />
+                  <p className="text-sm">Calculating your Farm Opportunity Score...</p>
+                </div>
+              )}
+
+              {insightError && !loadingInsight && (
+                <div className="rounded-lg border border-crimson/30 bg-red-50 px-4 py-3 text-sm text-crimson">
+                  {insightError}
+                </div>
+              )}
+
+              {insight && !loadingInsight && (
+                <div className="space-y-4">
+                  <div className="rounded-xl bg-agric-green/5 border border-agric-green/20 p-4 motion-safe:animate-slide-in-up">
+                    <p className="text-sm font-semibold text-agric-green mb-1">Your farm has been assessed.</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{insight.summary}</p>
+                    {insight.recommendations.length > 0 && (
+                      <p className="text-xs text-agric-green/70 mt-2 font-medium">
+                        {insight.recommendations.length} recommendation{insight.recommendations.length !== 1 ? 's' : ''} identified
+                      </p>
+                    )}
+                  </div>
+
+                  <FarmIntelligenceCard insight={insight} />
+                  {farm && <ProductionMetrics farm={farm} />}
+                  {insight.recommendations.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+                        Recommendations
+                      </p>
+                      {insight.recommendations.map((rec, i) => (
+                        <RecommendationCard key={`${rec.category}-${i}`} recommendation={rec} index={i} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+          </div>{/* end desktop grid */}
+
+          {/* Take Action — mobile only (shown below intelligence on small screens) */}
           {insight && !loadingInsight && (
-            <TakeActionPanel
-              farmerDbId={farm.farmer_id}
-              farmDbId={farm.id}
-              farmName={farm.farm_name}
-              farmerId={farmerId}
-              recommendedTypes={insight.recommendations
-                .map((r) => recommendationToServiceType(r.category))
-                .filter((t): t is string => t !== null)}
-            />
+            <div className="lg:hidden mt-6">
+              <div className="border-t border-gray-200 mb-6" />
+              <TakeActionPanel
+                farmerDbId={farm.farmer_id}
+                farmDbId={farm.id}
+                farmName={farm.farm_name}
+                farmerId={farmerId}
+                recommendedTypes={insight.recommendations
+                  .map((r) => recommendationToServiceType(r.category))
+                  .filter((t): t is string => t !== null)}
+              />
+            </div>
           )}
 
         </div>

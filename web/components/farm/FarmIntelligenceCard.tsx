@@ -10,8 +10,8 @@ interface Props {
 }
 
 export default function FarmIntelligenceCard({ insight, animate = true }: Props) {
-  const radius = 52
-  const stroke = 8
+  const radius = 58
+  const stroke = 9
   const circ   = 2 * Math.PI * radius
 
   // displayScore drives both the SVG ring and the number counter.
@@ -54,54 +54,38 @@ export default function FarmIntelligenceCard({ insight, animate = true }: Props)
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 motion-safe:animate-jump-in">
-      <div className="flex flex-col items-center text-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-8 gap-4 text-center sm:text-left">
 
         {/* Score ring */}
-        <div
-          className={[
-            'relative w-32 h-32 flex items-center justify-center',
-            pulsing ? 'motion-safe:animate-score-pulse' : '',
-          ].join(' ')}
-        >
+        <div className="flex-shrink-0 flex justify-center">
+          <div
+            className={[
+              'relative w-36 h-36 flex items-center justify-center',
+              pulsing ? 'motion-safe:animate-score-pulse' : '',
+            ].join(' ')}
+          >
           <svg
-            width="128"
-            height="128"
-            viewBox="0 0 128 128"
+            width="144"
+            height="144"
+            viewBox="0 0 144 144"
             className="-rotate-90"
             aria-hidden="true"
           >
-            {/* Track */}
-            <circle
-              cx="64" cy="64" r={radius}
-              fill="none"
-              stroke="#E5E7EB"
-              strokeWidth={stroke}
-            />
-            {/* Progress — driven by JS state, no CSS transition needed */}
-            <circle
-              cx="64" cy="64" r={radius}
-              fill="none"
-              stroke="#C9A84C"
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={circ}
-              strokeDashoffset={offset}
-            />
+            <circle cx="72" cy="72" r={radius} fill="none" stroke="#E5E7EB" strokeWidth={stroke} />
+            <circle cx="72" cy="72" r={radius} fill="none" stroke="#C9A84C" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} />
           </svg>
 
-          {/* Score number */}
           <div className="absolute inset-0 flex flex-col items-center justify-center" aria-live="polite" aria-atomic="true">
-            <span className="font-display text-3xl font-bold text-black leading-none">
-              {displayScore}
-            </span>
+            <span className="font-display text-4xl font-bold text-black leading-none">{displayScore}</span>
             <span className="text-xs text-gray-400 mt-0.5">/ 100</span>
           </div>
         </div>
+        </div>{/* end ring wrapper */}
 
         {/* Label + summary */}
-        <div>
-          <p className="font-display text-base font-semibold text-black">Farm Opportunity</p>
-          <p className="text-sm text-gray-500 mt-1 max-w-xs leading-relaxed">
+        <div className="flex-1">
+          <p className="font-display text-lg font-semibold text-black">Farm Opportunity</p>
+          <p className="text-sm text-gray-500 mt-1 leading-relaxed max-w-xs">
             {insight.summary}
           </p>
         </div>

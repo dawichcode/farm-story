@@ -68,14 +68,18 @@ export default function FarmerDashboardPage() {
 
   return (
     <FarmerShell farmerPublicId={farmer.farmer_id} farmerId={farmerId} currentFarmId={farms[0] ? String(farms[0].id) : null}>
-      <div className="px-4 py-8">
-        <div className="max-w-lg mx-auto space-y-6">
-          <div className="motion-safe:animate-slide-in-up">
-            <h1 className="font-display text-2xl font-bold text-black">
+      <div className="px-4 lg:px-8 py-8 lg:py-12">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8 motion-safe:animate-slide-in-up">
+            <h1 className="font-display text-2xl lg:text-3xl font-bold text-black">
               Welcome, {farmer.full_name.split(' ')[0]}
             </h1>
             <p className="text-sm text-gray-500 mt-1">{farmer.county}</p>
           </div>
+
+          <div className="grid lg:grid-cols-[1fr_300px] gap-8 items-start">
+          <div className="space-y-6">
+          {/* spacer hack for grid — the original section divs are unchanged below */}
 
           {/* Existing farms */}
           {farms.length > 0 && (
@@ -140,6 +144,7 @@ export default function FarmerDashboardPage() {
           )}
 
           {/* Action buttons */}
+          </div>{/* end main column */}
           <div className="space-y-3 motion-safe:animate-slide-in-up" style={{ animationDelay: '80ms' }}>
             <Button
               className="w-full justify-start gap-3"
@@ -160,6 +165,7 @@ export default function FarmerDashboardPage() {
               View service requests
             </Button>
           </div>
+          </div>{/* end grid */}
         </div>
       </div>
     </FarmerShell>

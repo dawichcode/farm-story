@@ -77,7 +77,7 @@ export default function AdminFarmerDetailPage() {
   const reqs    = farm?.service_requests ?? []
 
   return (
-    <div className="px-6 py-8 max-w-3xl mx-auto space-y-10 motion-safe:animate-fade-in">
+    <div className="px-6 py-8 max-w-5xl mx-auto space-y-10 motion-safe:animate-fade-in">
 
       {/* Back */}
       <Link
